@@ -1,0 +1,118 @@
+﻿@page "/"
+@using ClassLibrary1.Models;
+@using ClassLibrary1.Data;
+
+
+<PageTitle>Home</PageTitle>
+
+
+<section style="background-color: black; height: 100vh;" class="col-lg-12 col-sm-3 col-md-6 d-flex justify-content-center text-center">
+    <h1 style="color: red; margin-top: 20px">Hello, world!</h1>
+
+    
+    <AuthorizeView Roles="Admin">
+        <h1 style="color: red"> hello you are admin</h1>
+        <div>
+            
+        </div>
+</AuthorizeView>
+</section>
+
+<section style="background-color: gray; height: 100vh;">
+    <h1 style="color: red">Hello, world!</h1>
+</section>
+
+
+
+<EditForm Model="AboutInfo" OnValidSubmit="@AddAbout" class="edit-form" FormName="aboutinfo">
+
+
+    <div>
+        <label>Name</label>
+        <InputText @bind-Value="AboutInfo.Name"></InputText>
+        <label>Description</label>
+        <InputText @bind-Value="AboutInfo.Description"></InputText>
+        
+
+    </div>
+    <div>
+        <button type="submit">add about</button>
+    </div>
+
+</EditForm>
+
+
+
+
+
+@code {
+
+    private About AboutInfo { get; set; } = new About();
+    private List<About> aboutAbout { get; set; } = new List<About>();
+
+    //Helpers
+    private HttpClient httpClient = new HttpClient();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+      //  await GetAboutInfo();
+    }
+
+    private async Task GetAboutInfo()
+    {
+        try
+        {
+            var response = await httpClient.GetAsync("http://localhost:5205/about");
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("sucess");
+                //AboutInfo = await response.Content.ReadFromJsonAsync<About>();
+                // if (AboutData != null)
+                // {
+                //     aboutAbout = AboutData;
+                //     StateHasChanged();
+                // }
+            }
+            else
+            {
+                AboutInfo = new About();
+            }
+        }
+        catch(Exception)
+        {
+
+        }
+    }
+    private async Task AddAbout()
+    {
+        try
+        {
+            //AboutInfo.Name = "poop";
+            if (AboutInfo.Name != null)
+            {
+                var response = await httpClient.PostAsJsonAsync("http://localhost:5205/about", AboutInfo);
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Success");
+                    AboutInfo = new About();                
+
+                }
+                else
+                {
+                    Console.WriteLine("Failed");
+                }
+            }
+            else
+            {
+
+            }
+            
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Something went wrong");
+            // Handle exception
+        }
+    }
+}
